@@ -1,0 +1,27 @@
+version: 2
+
+sources:
+  - name: raw_ecommerce
+    database: "{{ env_var('DBT_GCP_PROJECT', target.project) }}"
+    schema: raw_ecommerce
+    tables:
+      - name: customers
+        columns:
+          - name: customer_id
+            tests: [not_null, unique]
+      - name: orders
+        columns:
+          - name: order_id
+            tests: [not_null, unique]
+          - name: customer_id
+            tests: [not_null]
+      - name: order_items
+        columns:
+          - name: order_item_id
+            tests: [not_null, unique]
+          - name: order_id
+            tests: [not_null]
+      - name: products
+        columns:
+          - name: product_id
+            tests: [not_null, unique]

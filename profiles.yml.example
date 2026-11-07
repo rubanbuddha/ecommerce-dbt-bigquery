@@ -1,0 +1,19 @@
+ecommerce_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      project: your-gcp-project-id
+      dataset: ecommerce_dev
+      threads: 8
+      keyfile: ~/.gcp/service-account.json
+      location: EU
+    ci:
+      type: bigquery
+      method: service-account-json
+      project: your-gcp-project-id
+      dataset: ecommerce_ci
+      threads: 4
+      location: EU
+      keyfile_json: "{{ env_var('GCP_SA_KEY') | as_native }}"

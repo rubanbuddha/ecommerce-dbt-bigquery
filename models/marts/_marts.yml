@@ -1,0 +1,75 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: "One row per customer with RFM scores and segment."
+    columns:
+      - name: customer_id
+        tests: [unique, not_null]
+      - name: r_score
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 1
+              max_value: 5
+      - name: f_score
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 1
+              max_value: 5
+      - name: m_score
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 1
+              max_value: 5
+      - name: rfm_segment
+        tests:
+          - accepted_values:
+              values: ['Champions', 'Recent', 'At-risk loyal', 'Lapsed', 'Potential']
+
+  - name: fct_orders
+    columns:
+      - name: order_id
+        tests: [unique, not_null]
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_id
+
+  - name: fct_order_items
+    columns:
+      - name: order_item_id
+        tests: [unique, not_null]
+      - name: order_id
+        tests:
+          - relationships:
+              to: ref('fct_orders')
+              field: order_id
+
+  - name: mart_cohort_retention
+    columns:
+      - name: retention_rate
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+
+  - name: mart_executive_kpis
+    columns:
+      - name: month_start
+        tests: [unique, not_null]
+
+exposures:
+  - name: executive_dashboard
+    type: dashboard
+    maturity: high
+    url: https://metabase.example.com/dashboard/42
+    description: "Weekly executive KPI review."
+    depends_on:
+      - ref('mart_executive_kpis')
+      - ref('mart_rfm_segmentation')
+      - ref('mart_cohort_retention')
+    owner:
+      name: Ruban Buddha Kanmani Rajan
+      email: rubann1707@gmail.com
